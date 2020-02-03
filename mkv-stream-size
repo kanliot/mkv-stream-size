@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+# mkvinfo wrapper to pretty print bitrate of video and audio streams in .mkv files
+# the script prints out the bitrate of each stream in Kbps by calling mkvinfo -t [mkvfile]
+# it relies on how mkvinfo lists stream properties after keywords 
+# mkvinfo -t is slow for large files so this program is slow for large files.
+# does not try and use langid, but reads language in plaintext from mkvinfo
+
+
+use feature 'say';
+my @filenames=@ARGV;
+#@filenames=( 'music/Faith That Wavers – Dr. Charles Stanley-zvnDOoj3C3s.webm'); 
+#use Data::Dump;
+foreach (@filenames) {
+	my $filenam= $_;
+	my @stream;
+	my @bps;
+	my @types;
+	my @name;
+	my @lang;
+	my @trackno; #not used but useful for indexing the language and name variables since it always appears before either atom
+
+	(my $quoted = $_) =~ s/'/'"'"'/g; # quote strings for bash or /bin/sh https://stackoverflow.com/questions/22836/how-do-i-perform-a-perl-substitution-on-a-string-while-keeping-the-original
+	#print `echo '$quoted'`;# dd $quoted;
+	my @result=`'mkvinfo' '$quoted'`;  # this is the first time calling.  it only returns a few lines
+	goto error if  $?;
+	print $_ ; 
+	foreach (@result) {
+		#print $_ if /\S_(\S+)/;
+		push @stream, $1 if /ID: \S_(\S+)/;
+		push @types, $1 if /Track type: (\w+)/; 
+		push @trackno, $1 if /(Track .umber:)/;
+# i could add parsing for "Name" or "Language", but they aren't guaranteed to appear for each stream
+		@lang[$#trackno] = $1 if /Language: (\w*)/;
+		@name[$#trackno] = $1 if /Name: (\w*)/;
+
+		# could add duration or filesize here.
+		print_duration($1,$2,$3,$4) if /\| \+ Duration: (\d\d):(\d\d):(\d\d).(\d+)/;# 00:00:12.141000000
+		sub print_duration {
+			my $seconds = $1 * (60*60) + $2*60;
+			$seconds= $seconds + $3 + ".$4" ;
+			my $bits = (stat $filenam)[7] * 8; 
+			my ( $hours,$minutes,$seconds2)  = @_;
+			printf "\t%.1f Kbps", ($bits/1024)/$seconds;
+			printf " (%.0fM/%0d:%0d:%0d) (MiBytes/duration)\n", ($bits/8)/(1024*1024), $hours,$minutes,$seconds2; 
+		}
+	}
+	print "reading file, be patient"; select()->flush(); 
+	my @result=`'mkvinfo' '-t' '$quoted'`; # call mkvinfo again
+	goto error if  $?;
+	foreach (@result) {
+		#print $_ if /bits\/second: (\d+)$/;
+		push @bps, $1 if /bits\/second: (\d+)$/;  # yup it return this on the last lines
+
+	}
+	for ($a=0; $a< scalar @stream; $a++) {
+# it should be 'name ' iff language isn't found 
+		my $namelang = $lang[$a] ? $lang[$a] : $name[$a];
+		$namelang = "" if $namelang eq 'und';
+		$namelang .= " " if $namelang ne '';
+		$namelang =~ s/subtitles? //;
+		my $textpart = $stream[$a]." $namelang$types[$a]";
+		printf "\r        %27s\t%.1f Kbps\n", $textpart, $bps[$a] /1024;
+	}
+}
+
+exit;
+error: 
+	say 'unexpected error ' . "$?";
+	exit $?;
+
+ __END__
+	__DATA
+	|  + Name: Masked.A
+	|  + Track type: audio
+
+
