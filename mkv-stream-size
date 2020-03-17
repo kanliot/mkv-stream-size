@@ -12,7 +12,7 @@ my @filenames=@ARGV;
 #@filenames=( 'music/Faith That Wavers – Dr. Charles Stanley-zvnDOoj3C3s.webm'); 
 #use Data::Dump;
 foreach (@filenames) {
-	my $filenam= $_;
+	local $filenam= $_;
 	my @stream;
 	my @bps;
 	my @types;
@@ -23,7 +23,7 @@ foreach (@filenames) {
 	(my $quoted = $_) =~ s/'/'"'"'/g; # quote strings for bash or /bin/sh https://stackoverflow.com/questions/22836/how-do-i-perform-a-perl-substitution-on-a-string-while-keeping-the-original
 	#print `echo '$quoted'`;# dd $quoted;
 	my @result=`'mkvinfo' '$quoted'`;  # this is the first time calling.  it only returns a few lines
-	goto error if  $?;
+	@myerr=@result, goto error if  $?;
 	print $_ ; 
 	foreach (@result) {
 		#print $_ if /\S_(\S+)/;
@@ -39,6 +39,7 @@ foreach (@filenames) {
 		sub print_duration {
 			my $seconds = $1 * (60*60) + $2*60;
 			$seconds= $seconds + $3 + ".$4" ;
+			say "ok", $filenam; 
 			my $bits = (stat $filenam)[7] * 8; 
 			my ( $hours,$minutes,$seconds2)  = @_;
 			printf "\t%.1f Kbps", ($bits/1024)/$seconds;
@@ -66,12 +67,11 @@ foreach (@filenames) {
 
 exit;
 error: 
-	say 'unexpected error ' . "$?";
-	exit $?;
+	say STDERR 'unexpected error ', ($?>> 8),substr(join('',@myerr),0,-1);
+	exit $?>>8;
 
  __END__
 	__DATA
 	|  + Name: Masked.A
 	|  + Track type: audio
-
 
