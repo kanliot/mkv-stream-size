@@ -39,7 +39,6 @@ foreach (@filenames) {
 		sub print_duration {
 			my $seconds = $1 * (60*60) + $2*60;
 			$seconds= $seconds + $3 + ".$4" ;
-			say "ok", $filenam; 
 			my $bits = (stat $filenam)[7] * 8; 
 			my ( $hours,$minutes,$seconds2)  = @_;
 			printf "\t%.1f Kbps", ($bits/1024)/$seconds;
