@@ -9,6 +9,8 @@
 
 use feature 'say';
 my @filenames=@ARGV;
+say( 'please pass an actual file'),exit 1 if not scalar @filenames;
+grep { say( "$0 has no options.  Just pass filenames and wait.\nThis program is a wrapper to call mkvinfo and print out pretty bitrates of each stream.\nThis program will now exit."),exit if /^(-h|--help)$/ } @filenames;
 #@filenames=( 'music/Faith That Wavers – Dr. Charles Stanley-zvnDOoj3C3s.webm'); 
 #use Data::Dump;
 foreach (@filenames) {
@@ -37,12 +39,12 @@ foreach (@filenames) {
 		# could add duration or filesize here.
 		print_duration($1,$2,$3,$4) if /\| \+ Duration: (\d\d):(\d\d):(\d\d).(\d+)/;# 00:00:12.141000000
 		sub print_duration {
-			my $seconds = $1 * (60*60) + $2*60;
+			my $seconds = $1 * (60*60) + $2*60;  # total length
 			$seconds= $seconds + $3 + ".$4" ;
 			my $bits = (stat $filenam)[7] * 8; 
 			my ( $hours,$minutes,$seconds2)  = @_;
 			printf "\t%.1f Kbps", ($bits/1024)/$seconds;
-			printf " (%.0fM/%0d:%0d:%0d) (MiBytes/duration)\n", ($bits/8)/(1024*1024), $hours,$minutes,$seconds2; 
+			printf " (%.0fM/%0d:%02d:%02d) (MiBytes/duration)\n", ($bits/8)/(1024*1024), $hours,$minutes,$seconds2; 
 		}
 	}
 	print "reading file, be patient"; select()->flush(); 
