@@ -1,6 +1,6 @@
 # mkv-stream-size
 The script prints out the bitrate of each mkv stream in Kbps by calling mkvinfo.    
-The computer will require mkvtoolnix (free software for creating mkv files) 
+The computer will require mkvinfo by mkvtoolnix (free software for creating mkv files) 
 
 Usage: `mkv-stream-size file1.mkv [file2.webm] ...`
 
