@@ -1,11 +1,11 @@
 # mkv-stream-size
 The script prints out the bitrate of each mkv stream in Kbps by calling mkvinfo.    
-The user needs to have 'mkvinfo' from https://mkvtoolnix.download/index.html or **mkvtoolnix** on debian
+The computer will require mkvtoolnix (free software for creating mkv files) 
 
 Usage: `mkv-stream-size file1.mkv [file2.webm] ...`
 
 ### Installation: 
-download the single script and run it after installing mkvinfo from **mkvtoolnix**
+download the single script and run it after installing mkvinfo from **[mkvtoolnix](https://packages.debian.org/buster/mkvtoolnix)**
 
 mkvinfo -t is slow for large files so this program is slow for large files.
 
