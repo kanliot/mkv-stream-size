@@ -10,7 +10,7 @@ download the single script and run it after installing mkvinfo from **[mkvtoolni
 mkvinfo's track-info is slow for large files so this program is slow for large files.
 
 ## Sample output: 
-    Is.Van.Gogh.A.Genius.mkv	2282.1 Kbps (657M/0:39:16) (MiBytes/duration)
+    Is.Van.Gogh.A.Genius.mkv	2282.1 Kbps (657M/0:39:16) (MB/duration)
                 MPEG4/ISO/AVC video	1720.9 Kbps
                           AAC audio	140.3 Kbps
                       AAC spa audio	138.3 Kbps
@@ -19,3 +19,4 @@ mkvinfo's track-info is slow for large files so this program is slow for large f
 
 
 tested with mkvinfo v.35.
+`mkv-stream-size` was printing size in MiB (2^20), but I believe every other tool uses MB (10^6) so, now uses 1MB=1000000 bytes.
