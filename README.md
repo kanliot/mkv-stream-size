@@ -18,5 +18,5 @@ mkvinfo's track-info is slow for large files so this program is slow for large f
                       AAC jpn audio	139.3 Kbps
 
 
-tested with mkvinfo v.35.
+tested with mkvinfo v.35.    
 `mkv-stream-size` was printing size in MiB (2^20), but I believe every other tool uses MB (10^6) so, now uses 1MB=1000000 bytes.
