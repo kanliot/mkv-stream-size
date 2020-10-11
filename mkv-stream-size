@@ -27,6 +27,7 @@ foreach (@filenames) {
 	my @result=`'mkvinfo' '$quoted'`;  # this is the first time calling.  it only returns a few lines
 	@myerr=@result, goto error if  $?;
 	print $_ ; 
+	my $seconds;
 	foreach (@result) {
 		#print $_ if /\S_(\S+)/;
 		push @stream, $1 if /ID: \S_(\S+)/;
@@ -40,7 +41,7 @@ foreach (@filenames) {
 		print_duration($1,$2,$3,$4) if /\| \+ Duration: (\d\d):(\d\d):(\d\d).(\d+)/;# 00:00:12.141000000
 		sub print_duration {
 			my $kilob = 1000; 
-			my $seconds = $1 * (60*60) + $2*60;  # total length
+			$seconds = $1 * (60*60) + $2*60;  # total length
 			$seconds= $seconds + $3 + ".$4" ;
 			my $bits = (stat $filenam)[7] * 8; 
 			my ( $hours,$minutes,$seconds2)  = @_;
@@ -64,7 +65,7 @@ foreach (@filenames) {
 		$namelang .= " " if $namelang ne '';
 		$namelang =~ s/subtitles? //;
 		my $textpart = $stream[$a]." $namelang$types[$a]";
-		printf "\r        %27s\t%.1f Kbps\n", $textpart, $bps[$a] /$kilob;
+		printf "\r        %27s\t%.1f Kbps\t(%.1f MiB)\n", $textpart, $bps[$a] /$kilob,$bps[$a]*$seconds/(8*1024*1024);
 	}
 }
 
